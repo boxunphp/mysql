@@ -1,0 +1,26 @@
+{
+  "name": "boxunphp/php-mysql",
+  "description": "PHP Mysql Client",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jordy",
+      "email": "arno.zheng@gmail.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require-dev": {
+    "phpunit/phpunit": "7.*"
+  },
+  "require": {
+    "php": "^7.1",
+    "boxunsoft/php-instance": "^v1.1.0",
+    "boxunphp/php-exception": "^v1.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "All\\Mysql\\": ""
+    }
+  }
+}
