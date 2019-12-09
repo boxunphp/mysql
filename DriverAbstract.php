@@ -34,7 +34,7 @@ abstract class DriverAbstract implements DriverInterface
     protected $data = [];
     protected $debug = false;
 
-    public function table($table, $alias = '', $condition = '')
+    public function table($table, $alias = null, $condition = null)
     {
         $data = [];
         $data['table'] = $this->escapeTable($table);
@@ -46,16 +46,16 @@ abstract class DriverAbstract implements DriverInterface
             $leftValue = $this->escapeField($leftValue);
             $rightValue = $this->escapeField($rightValue);
             if ($this->where) {
-                $this->where .= ' AND ' . $leftValue . '=' . $rightValue;
+                $this->where .= ' AND ' . $leftValue . ' = ' . $rightValue;
             } else {
-                $this->where = 'WHERE ' . $leftValue . '=' . $rightValue;
+                $this->where = 'WHERE ' . $leftValue . ' = ' . $rightValue;
             }
         }
         $this->table[] = $data;
         return $this;
     }
 
-    public function join($table, $condition, $alias = '', $type = '')
+    public function join($table, $condition, $alias = null, $type = null)
     {
         $data = [];
         $data['table'] = $this->escapeTable($table);
@@ -63,24 +63,34 @@ abstract class DriverAbstract implements DriverInterface
             $data['alias'] = $this->escapeTable($alias);
         }
         $type = strtoupper($type);
-        $data['type'] = $type && in_array($type, ['LEFT', 'RIGHT']) ? $type : '';
+        $data['type'] = $type && in_array($type, ['LEFT', 'RIGHT', 'OUTER', 'INNER']) ? $type : '';
         list($leftValue, $rightValue) = array_map('trim', explode('=', $condition));
         $leftValue = $this->escapeField($leftValue);
         $rightValue = $this->escapeField($rightValue);
-        $data['condition'] = $leftValue . '=' . $rightValue;
+        $data['condition'] = $leftValue . ' = ' . $rightValue;
 
         $this->join[] = $data;
         return $this;
     }
 
-    public function leftJoin($table, $condition, $alias = '')
+    public function leftJoin($table, $condition, $alias = null)
     {
         return $this->join($table, $condition, $alias, 'LEFT');
     }
 
-    public function rightJoin($table, $condition, $alias = '')
+    public function rightJoin($table, $condition, $alias = null)
     {
         return $this->join($table, $condition, $alias, 'RIGHT');
+    }
+
+    public function outerJoin($table, $condition, $alias = null)
+    {
+        return $this->join($table, $condition, $alias, 'OUTER');
+    }
+
+    public function innerJoin($table, $condition, $alias = null)
+    {
+        return $this->join($table, $condition, $alias, 'INNER');
     }
 
     public function fields($fields)
@@ -94,7 +104,14 @@ abstract class DriverAbstract implements DriverInterface
         return $this;
     }
 
-    public function where($field, $value, $operator = '', $connector = '')
+    /**
+     * @param $field
+     * @param $value
+     * @param null $operator
+     * @param null $connector
+     * @return $this
+     */
+    public function where($field, $value, $operator = null, $connector = null)
     {
         $field = $this->escapeField($field);
         if (is_array($value)) {
@@ -107,7 +124,7 @@ abstract class DriverAbstract implements DriverInterface
         return $this;
     }
 
-    public function orWhere($field, $value, $operator = '')
+    public function orWhere($field, $value, $operator = null)
     {
         return $this->where($field, $value, $operator, 'OR');
     }
@@ -130,6 +147,12 @@ abstract class DriverAbstract implements DriverInterface
         return $this;
     }
 
+    /**
+     * @param $field
+     * @param $beginValue
+     * @param $endValue
+     * @return $this
+     */
     public function between($field, $beginValue, $endValue)
     {
         return $this->where($field, [$beginValue, $endValue], 'BETWEEN');
@@ -170,13 +193,53 @@ abstract class DriverAbstract implements DriverInterface
         return $this->where($field, $value . '%', 'LIKE', 'OR');
     }
 
+    public function in($field, array $value)
+    {
+        return $this->where($field, $value, 'IN');
+    }
+
+    public function notIn($field, array $value)
+    {
+        return $this->where($field, $value, 'NOT IN');
+    }
+
+    public function orIn($field, array $value)
+    {
+        return $this->orWhere($field, $value, 'IN');
+    }
+
+    public function orNotIn($field, array $value)
+    {
+        return $this->orWhere($field, $value, 'NOT IN');
+    }
+
+    public function isNull($field)
+    {
+        return $this->where($field, null, 'IS NULL');
+    }
+
+    public function isNotNull($field)
+    {
+        return $this->where($field, null, 'IS NOT NULL');
+    }
+
+    public function orIsNull($field)
+    {
+        return $this->orWhere($field, null, 'IS NULL');
+    }
+
+    public function orIsNotNull($field)
+    {
+        return $this->orWhere($field, null, 'IS NOT NULL');
+    }
+
     public function whereSql($where, array $params)
     {
         $this->whereConcat($where, $params, 'AND');
         return $this;
     }
 
-    public function orderBy($field, $sort = '')
+    public function orderBy($field, $sort = null)
     {
         $field = $this->escapeField($field);
         $sort = strtoupper($sort);

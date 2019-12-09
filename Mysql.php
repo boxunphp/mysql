@@ -34,6 +34,10 @@ class Mysql extends DriverAbstract
     protected $inTrans = false;
     protected $transCount = 0;
 
+    /**
+     * @param array $config
+     * @return static
+     */
     public static function getInstance(array $config)
     {
         return self::_getInstance($config);
@@ -63,7 +67,7 @@ class Mysql extends DriverAbstract
     {
         $this->type = self::TYPE_SELECT;
         $sql = $this->sqlConcat();
-        $sth = $this->execute($sql, $this->params);
+        $sth = $this->_execute($sql, $this->params);
         if (!$sth) {
             return false;
         }
@@ -78,7 +82,7 @@ class Mysql extends DriverAbstract
     {
         $this->type = self::TYPE_SELECT;
         $sql = $this->sqlConcat();
-        $sth = $this->execute($sql, $this->params);
+        $sth = $this->_execute($sql, $this->params);
         if (!$sth) {
             return false;
         }
@@ -161,7 +165,7 @@ class Mysql extends DriverAbstract
             $this->showSql($this->getSql());
         }
         $sql = $this->sqlConcat();
-        $sth = $this->execute($sql, $this->params);
+        $sth = $this->_execute($sql, $this->params);
         if (!$sth) {
             return false;
         }
@@ -182,6 +186,15 @@ class Mysql extends DriverAbstract
             return false;
         }
         return $this->getConnection(self::DB_TYPE_MASTER)->lastInsertId();
+    }
+
+    public function execute($sql, array $params = [])
+    {
+        $sth = $this->_execute($sql, $params);
+        if (!$sth) {
+            return false;
+        }
+        return true;
     }
 
     //-------- 地平线 --------//
@@ -214,6 +227,8 @@ class Mysql extends DriverAbstract
         foreach ($sqlArr as $key => $value) {
             $sql .= $this->addSqlParam($params[$key]) . $value;
         }
+
+        $this->reset();
         return $sql;
     }
 
@@ -277,6 +292,7 @@ class Mysql extends DriverAbstract
             $sql .= 'DISTINCT ';
         }
         $sql .= $this->fields . ' FROM ' . $this->getTable();
+
         if ($this->join) {
             $sql .= $this->getJoin();
         }
@@ -309,7 +325,7 @@ class Mysql extends DriverAbstract
         $sql .= ' ' . $this->getTable();
         $fields = array_keys($this->data);
         $values = array_values($this->data);
-        $sql .= ' (' . implode(',', $this->escapeFields($fields)) . ') VALUES (' . implode(',',
+        $sql .= '(' . implode(',', $this->escapeFields($fields)) . ') VALUES(' . implode(',',
                 array_fill(0, count($values), '?')) . ')';
         $this->params = $values;
         return $sql;
@@ -357,7 +373,7 @@ class Mysql extends DriverAbstract
         $sql .= ' ' . $this->getTable();
         $fields = array_keys($this->data);
         $values = array_values($this->data);
-        $sql .= ' (' . implode(',', $this->escapeFields($fields)) . ') VALUES (' . implode(',',
+        $sql .= '(' . implode(',', $this->escapeFields($fields)) . ') VALUES(' . implode(',',
                 array_fill(0, count($values), '?')) . ')';
         $this->params = $values;
         return $sql;
@@ -380,7 +396,7 @@ class Mysql extends DriverAbstract
                 $this->params[] = $v;
             }
         }
-        $sql .= ' (' . implode(',', $this->escapeFields($fields)) . ') VALUES ' . implode(',', $valueArr);
+        $sql .= '(' . implode(',', $this->escapeFields($fields)) . ') VALUES' . implode(',', $valueArr);
         return $sql;
     }
 
@@ -451,7 +467,7 @@ class Mysql extends DriverAbstract
                 $sql = $this->getUpdateMultiSql();
                 break;
             default:
-                $sql = '';
+                $sql = $this->getSelectSql();
                 break;
         }
 
@@ -467,7 +483,7 @@ class Mysql extends DriverAbstract
             }
             $table .= $item['table'];
             if (!empty($item['alias'])) {
-                $table .= ' ' . $item['alias'];
+                $table .= ' AS ' . $item['alias'];
             }
         }
         return $table;
@@ -482,7 +498,7 @@ class Mysql extends DriverAbstract
             }
             $table .= ' JOIN ' . $item['table'];
             if (!empty($item['alias'])) {
-                $table .= ' ' . $item['alias'];
+                $table .= ' AS ' . $item['alias'];
             }
             $table .= ' ON ' . $item['condition'];
         }
@@ -679,13 +695,14 @@ EOT;
     //-------- 地平线 --------//
 
     /**
+     * 连接数据库
      * @param $config
      * @return \PDO
      * @throws Exception
      */
     protected function connect($config)
     {
-        $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s', $config['host'], $config['port'], $config['name']);
+        $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s', $config['host'], $config['port'], $config['dbname']);
         $charset = empty($config['charset']) ? 'utf8' : $config['charset'];
         $options = array(
             \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
@@ -714,7 +731,7 @@ EOT;
      * @return bool|\PDOStatement
      * @throws Exception
      */
-    protected function execute($sql, $params)
+    protected function _execute($sql, $params)
     {
         $pdo = $this->getConnection($this->getDbType($this->type));
         try {
@@ -746,6 +763,7 @@ EOT;
     }
 
     /**
+     * 获取数据库连接
      * @param $dbType
      * @return \PDO
      * @throws Exception
@@ -761,6 +779,7 @@ EOT;
     }
 
     /**
+     * 配置信息
      * @param $type
      * @return mixed
      * @throws Exception
@@ -775,6 +794,11 @@ EOT;
         return $config;
     }
 
+    /**
+     * DB主从类型
+     * @param $type
+     * @return int
+     */
     protected function getDbType($type)
     {
         if (in_array($type, [self::TYPE_SELECT])) {
@@ -785,6 +809,7 @@ EOT;
     }
 
     /**
+     * DB的主配置
      * @return mixed
      * @throws Exception
      */
@@ -797,6 +822,7 @@ EOT;
     }
 
     /**
+     * DB的从配置
      * @return mixed
      * @throws Exception
      */

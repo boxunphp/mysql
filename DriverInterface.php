@@ -52,7 +52,7 @@ interface DriverInterface
 
     public function groupBy($field);
 
-    public function limit($record, $offset = null);
+    public function limit($record, $offset = 0);
 
     public function record($record);
 
