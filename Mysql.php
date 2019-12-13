@@ -188,6 +188,12 @@ class Mysql extends DriverAbstract
         return $this->getConnection(self::DB_TYPE_MASTER)->lastInsertId();
     }
 
+    /**
+     * @param $sql
+     * @param array $params
+     * @return bool
+     * @throws Exception
+     */
     public function execute($sql, array $params = [])
     {
         $sth = $this->_execute($sql, $params);

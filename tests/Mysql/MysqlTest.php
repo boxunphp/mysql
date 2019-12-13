@@ -6,7 +6,7 @@
  * Time: 6:49 PM
  */
 
-namespace MysqlTest;
+namespace Tests\Mysql;
 
 use All\Mysql\Mysql;
 use PHPUnit\Framework\TestCase;
@@ -22,11 +22,11 @@ class MysqlTest extends TestCase
     {
         $config = [
             'master' => [
-                'host' => $GLOBALS['DB_HOST'],
-                'port' => $GLOBALS['DB_PORT'],
-                'username' => $GLOBALS['DB_USERNAME'],
-                'password' => $GLOBALS['DB_PASSWORD'],
-                'dbname' => $GLOBALS['DB_NAME'],
+                'host' => 'mysql-3306',
+                'port' => 3306,
+                'username' => 'root',
+                'password' => '123456',
+                'dbname' => 'test',
                 'charset' => 'utf8',
             ],
             'connect_timeout' => 1,
