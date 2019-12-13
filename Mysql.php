@@ -162,14 +162,15 @@ class Mysql extends DriverAbstract
     public function exec()
     {
         if ($this->debug) {
-            $this->showSql($this->getSql());
+            $this->showSql($this->_getSql());
         }
+        $type = $this->type;
         $sql = $this->sqlConcat();
         $sth = $this->_execute($sql, $this->params);
         if (!$sth) {
             return false;
         }
-        if (in_array($this->type, [self::TYPE_UPDATE, self::TYPE_UPDATE_MULTI, self::TYPE_DELETE])) {
+        if (in_array($type, [self::TYPE_UPDATE, self::TYPE_UPDATE_MULTI, self::TYPE_DELETE])) {
             return $sth->rowCount();
         }
         return true;
@@ -225,6 +226,13 @@ class Mysql extends DriverAbstract
 
     public function getSql()
     {
+        $sql = $this->_getSql();
+        $this->reset();
+        return $sql;
+    }
+
+    protected function _getSql()
+    {
         $prepareSql = $this->sqlConcat();
         $params = $this->params;
 
@@ -234,7 +242,6 @@ class Mysql extends DriverAbstract
             $sql .= $this->addSqlParam($params[$key]) . $value;
         }
 
-        $this->reset();
         return $sql;
     }
 
