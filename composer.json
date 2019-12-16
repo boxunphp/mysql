@@ -15,12 +15,12 @@
   },
   "require": {
     "php": "^7.1",
-    "boxunsoft/php-instance": "^v1.1.0",
-    "boxunphp/php-exception": "^v1.0.0"
+    "boxunsoft/php-instance": "v1.*",
+    "boxunphp/php-exception": "v1.*"
   },
   "autoload": {
     "psr-4": {
-      "All\\Mysql\\": ""
+      "All\\Mysql\\": "src/"
     }
   }
 }
