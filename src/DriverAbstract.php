@@ -17,6 +17,7 @@ abstract class DriverAbstract implements DriverInterface
     const TYPE_REPLACE = 5;
     const TYPE_INSERT_MULTI = 6;
     const TYPE_UPDATE_MULTI = 7;
+    const TYPE_INCREMENT = 8;
 
     protected $table = [];
     protected $join = [];

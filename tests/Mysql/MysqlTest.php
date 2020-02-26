@@ -262,6 +262,23 @@ EOT;
         }
     }
 
+    public function testIncrementSQL()
+    {
+        $validSqlArr = [
+            "UPDATE `user` SET `click_count`=`click_count`+10,`read_count`=`read_count`+1 WHERE `id` = 10",
+            "UPDATE `user` SET `click_count`=`click_count`+10,`read_count`=`read_count`-3 WHERE `id` = 10",
+        ];
+
+        $sqlArr = [
+            $this->db->table('user')->where('id', 10)->increment(['click_count'=>10,'read_count'=>1])->getSql(),
+            $this->db->table('user')->where('id', 10)->increment(['click_count'=>10,'read_count'=>-3])->getSql(),
+        ];
+
+        foreach ($sqlArr as $key => $sql) {
+            $this->assertEquals($validSqlArr[$key], $sql);
+        }
+    }
+
     public function testData()
     {
         // INSERT

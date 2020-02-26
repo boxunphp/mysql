@@ -76,6 +76,8 @@ interface DriverInterface
 
     public function replace(array $data);
 
+    public function increment(array $data);
+
     public function exec();
 
     public function lastInsertId();

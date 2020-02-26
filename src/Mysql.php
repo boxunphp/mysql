@@ -155,6 +155,13 @@ class Mysql extends DriverAbstract
         return $this;
     }
 
+    public function increment(array $data)
+    {
+        $this->type = self::TYPE_INCREMENT;
+        $this->data = $data;
+        return $this;
+    }
+
     /**
      * @return bool|int
      * @throws Exception
@@ -170,7 +177,7 @@ class Mysql extends DriverAbstract
         if (!$sth) {
             return false;
         }
-        if (in_array($type, [self::TYPE_UPDATE, self::TYPE_UPDATE_MULTI, self::TYPE_DELETE])) {
+        if (in_array($type, [self::TYPE_UPDATE, self::TYPE_UPDATE_MULTI, self::TYPE_DELETE, self::TYPE_INCREMENT])) {
             return $sth->rowCount();
         }
         return true;
@@ -453,6 +460,24 @@ class Mysql extends DriverAbstract
         return $sql;
     }
 
+    protected function getIncrementSql()
+    {
+        $sql = 'UPDATE ' . $this->getTable();
+        $values = [];
+        $fieldValue = [];
+        foreach ($this->data as $field => $value) {
+            $escapeField = $this->escapeField($field);
+            $fieldValue[] = $escapeField . '=' . $escapeField . ($value > 0 ? '+?' : '-?');
+            $values[] = abs($value);
+        }
+        $sql .= ' SET ' . implode(',', $fieldValue);
+        $this->params = array_merge($values, $this->params);
+        if ($this->where) {
+            $sql .= ' ' . $this->where;
+        }
+        return $sql;
+    }
+
     //-------- 地平线 --------//
 
     protected function sqlConcat()
@@ -478,6 +503,9 @@ class Mysql extends DriverAbstract
                 break;
             case self::TYPE_UPDATE_MULTI:
                 $sql = $this->getUpdateMultiSql();
+                break;
+            case self::TYPE_INCREMENT:
+                $sql = $this->getIncrementSql();
                 break;
             default:
                 $sql = $this->getSelectSql();
