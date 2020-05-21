@@ -8,9 +8,9 @@
 
 namespace All\Mysql;
 
-use Ali\InstanceTrait;
 use All\Exception\Exception;
 use All\Exception\MysqlException;
+use All\Instance\InstanceTrait;
 
 class Mysql extends DriverAbstract
 {
@@ -345,8 +345,10 @@ class Mysql extends DriverAbstract
         $sql .= ' ' . $this->getTable();
         $fields = array_keys($this->data);
         $values = array_values($this->data);
-        $sql .= '(' . implode(',', $this->escapeFields($fields)) . ') VALUES(' . implode(',',
-                array_fill(0, count($values), '?')) . ')';
+        $sql .= '(' . implode(',', $this->escapeFields($fields)) . ') VALUES(' . implode(
+            ',',
+            array_fill(0, count($values), '?')
+        ) . ')';
         $this->params = $values;
         return $sql;
     }
@@ -393,8 +395,10 @@ class Mysql extends DriverAbstract
         $sql .= ' ' . $this->getTable();
         $fields = array_keys($this->data);
         $values = array_values($this->data);
-        $sql .= '(' . implode(',', $this->escapeFields($fields)) . ') VALUES(' . implode(',',
-                array_fill(0, count($values), '?')) . ')';
+        $sql .= '(' . implode(',', $this->escapeFields($fields)) . ') VALUES(' . implode(
+            ',',
+            array_fill(0, count($values), '?')
+        ) . ')';
         $this->params = $values;
         return $sql;
     }
