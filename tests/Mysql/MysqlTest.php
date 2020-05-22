@@ -18,7 +18,7 @@ class MysqlTest extends TestCase
      */
     protected $db;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $config = [
             'master' => [
@@ -46,7 +46,6 @@ EOT;
 
         $this->db->execute("DROP TABLE IF EXISTS `user`");
         $this->db->execute($tableSQL);
-
     }
 
     public function testSelectSQL()
@@ -124,24 +123,37 @@ EOT;
             $this->db->table('user')->fields('*,COUNT(id) as count')->groupBy('level')->getSql(),
 
             // JOIN
-            $this->db->table('user', 'u')->join('user_detail', 'u.id=d.id',
-                'd')->fields('u.id,u.name,d.content')->where('u.id', 10)->getSql(),
-            $this->db->table('user', 'u')->leftJoin('user_detail', 'u.id=d.id',
-                'd')->fields('u.id,u.name,d.content')->where('u.id', 10)->getSql(),
-            $this->db->table('user', 'u')->rightJoin('user_detail', 'u.id=d.id',
-                'd')->fields('u.id,u.name,d.content')->where('u.id', 10)->getSql(),
-            $this->db->table('user', 'u')->table('user_detail', 'd',
-                'u.id=d.id')->fields('u.id,u.name,d.content')->where('u.id', 10)->getSql(),
+            $this->db->table('user', 'u')->join(
+                'user_detail',
+                'u.id=d.id',
+                'd'
+            )->fields('u.id,u.name,d.content')->where('u.id', 10)->getSql(),
+            $this->db->table('user', 'u')->leftJoin(
+                'user_detail',
+                'u.id=d.id',
+                'd'
+            )->fields('u.id,u.name,d.content')->where('u.id', 10)->getSql(),
+            $this->db->table('user', 'u')->rightJoin(
+                'user_detail',
+                'u.id=d.id',
+                'd'
+            )->fields('u.id,u.name,d.content')->where('u.id', 10)->getSql(),
+            $this->db->table('user', 'u')->table(
+                'user_detail',
+                'd',
+                'u.id=d.id'
+            )->fields('u.id,u.name,d.content')->where('u.id', 10)->getSql(),
 
             // BeginGroup
-            $this->db->table('user')->where('id', [1, 2, 3, 4])->beginWhereGroup()->like('name',
-                'abc')->orWhere('level', 1)->endWhereGroup()->getSql(),
+            $this->db->table('user')->where('id', [1, 2, 3, 4])->beginWhereGroup()->like(
+                'name',
+                'abc'
+            )->orWhere('level', 1)->endWhereGroup()->getSql(),
         ];
 
         foreach ($sqlArr as $key => $sql) {
             $this->assertEquals($validSqlArr[$key], $sql);
         }
-
     }
 
     public function testInsertSQL()
@@ -161,7 +173,6 @@ EOT;
         foreach ($sqlArr as $key => $sql) {
             $this->assertEquals($validSqlArr[$key], $sql);
         }
-
     }
 
     public function testInsertMultiSQL()
@@ -185,7 +196,6 @@ EOT;
         foreach ($sqlArr as $key => $sql) {
             $this->assertEquals($validSqlArr[$key], $sql);
         }
-
     }
 
     public function testUpdateSQL()
@@ -205,7 +215,6 @@ EOT;
         foreach ($sqlArr as $key => $sql) {
             $this->assertEquals($validSqlArr[$key], $sql);
         }
-
     }
 
     public function testUpdateMultiSQL()
@@ -244,7 +253,6 @@ EOT;
         foreach ($sqlArr as $key => $sql) {
             $this->assertEquals($validSqlArr[$key], $sql);
         }
-
     }
 
     public function testDeleteSQL()
@@ -292,14 +300,18 @@ EOT;
         // UPDATE
         $updateData = ['name' => 'b', 'create_time' => 1102];
         $this->assertEquals(1, $this->db->table('user')->where('id', 2)->update($updateData)->exec());
-        $this->assertEquals(['id' => 2, 'name' => 'b', 'create_time' => 1102],
-            $this->db->table('user')->where('id', 2)->fetch());
+        $this->assertEquals(
+            ['id' => 2, 'name' => 'b', 'create_time' => 1102],
+            $this->db->table('user')->where('id', 2)->fetch()
+        );
 
         // REPLACE
         $replaceData = $data = ['id' => 2, 'name' => 'bb', 'create_time' => 2102];
         $this->assertEquals(1, $this->db->table('user')->replace($replaceData)->exec());
-        $this->assertEquals(['id' => 2, 'name' => 'bb', 'create_time' => 2102],
-            $this->db->table('user')->where('id', 2)->fetch());
+        $this->assertEquals(
+            ['id' => 2, 'name' => 'bb', 'create_time' => 2102],
+            $this->db->table('user')->where('id', 2)->fetch()
+        );
 
         // INSERT MULTI
         $data = [
