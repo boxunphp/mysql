@@ -1,5 +1,5 @@
 {
-  "name": "boxunphp/php-mysql",
+  "name": "boxunphp/mysql",
   "description": "PHP Mysql Client",
   "type": "library",
   "license": "MIT",
@@ -15,8 +15,8 @@
   },
   "require": {
     "php": "^7.2",
-    "boxunphp/php-instance": "dev-master",
-    "boxunphp/php-exception": "dev-master"
+    "boxunphp/instance": "^2.0",
+    "boxunphp/exception": "^2.0"
   },
   "autoload": {
     "psr-4": {
