@@ -8,7 +8,7 @@
 
 namespace Tests\Mysql;
 
-use All\Mysql\Mysql;
+use All\Mysql\Drivers\Mysql;
 use PHPUnit\Framework\TestCase;
 
 class MysqlTest extends TestCase

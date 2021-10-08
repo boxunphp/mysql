@@ -6,11 +6,12 @@
  * Time: 5:28 PM
  */
 
-namespace All\Mysql;
+namespace All\Mysql\Drivers;
 
 use All\Exception\Exception;
 use All\Exception\MysqlException;
 use All\Instance\InstanceTrait;
+use All\Mysql\DriverAbstract;
 
 class Mysql extends DriverAbstract
 {
